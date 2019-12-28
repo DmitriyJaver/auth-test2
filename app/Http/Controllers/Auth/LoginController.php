@@ -29,6 +29,8 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
+    
+    const MINUTES_IN_HOUR = 60;
 
     /**
      * Where to redirect users after login.
@@ -36,9 +38,6 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = RouteServiceProvider::HOME;
-
-
-
 
     /**
      * Create a new controller instance.
@@ -61,10 +60,10 @@ class LoginController extends Controller
         $now = Carbon::now();
 
         if(isset($attemptEndTime) && $attemptEndTime->diffInMinutes($now)<= 60){
-            $timeLeft = $attemptEndTime->diffInMinutes($now);
-            $timeLeft1 = 60 - $timeLeft;
+            
+            $timeLeft = self::MINUTES_IN_HOUR - $attemptEndTime->diffInMinutes($now);
 
-            return redirect('/')->withErrors(["Try again after: " . $timeLeft1 . ' minutes']);
+            return redirect('/')->withErrors(["Try again after: " . $timeLeft . ' minutes']);
         }
         else{
 
@@ -124,14 +123,9 @@ class LoginController extends Controller
 
     public function showCodeForm()
     {
-
-
         if (! session()->has("token_id")) {
             return redirect("login");
         }
-
-
-
         return view("auth.code");
     }
 
@@ -142,8 +136,6 @@ class LoginController extends Controller
      */
     public function storeCodeForm(Request $request)
     {
-
-
         // throttle for too many attempts
         if (! session()->has("token_id", "user_id")) {
             return redirect("login");
@@ -155,8 +147,6 @@ class LoginController extends Controller
             $request->code !== $token->code ||
             (int)session()->get("user_id") !== $token->user->id
         ) {
-
-
             $count = session()->get('number_of_try');
 
             if($count > 1) {
@@ -182,6 +172,4 @@ class LoginController extends Controller
 
         return redirect('home');
     }
-
-
 }
