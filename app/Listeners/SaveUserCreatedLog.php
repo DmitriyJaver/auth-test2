@@ -18,7 +18,6 @@ class SaveUserCreatedLog
     {
         //
     }
-
     /**
      * Handle the event.
      *
@@ -27,11 +26,8 @@ class SaveUserCreatedLog
      */
     public function handle(UserCreated $event)
     {
-
             UserRegistrationLog::insert([
-
                 'user_id' => $event->user->id,
             ]);
-
     }
 }
