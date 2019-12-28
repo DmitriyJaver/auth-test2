@@ -2,11 +2,13 @@
 
 namespace App;
 
+use App\Events\UserCreated;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -16,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'country_code', 'phone', 'use_sms_verify'
     ];
 
     /**
@@ -36,4 +38,24 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected $dispatchesEvents = [
+        'created' => UserCreated::class
+    ];
+
+    public function userRegistrationsLog()
+    {
+        return $this->hasOne(UserRegistrationLog::class, 'user_id');
+    }
+
+
+    public function tokens()
+    {
+        return $this->hasMany(Token::class);
+    }
+    public function getPhoneNumber()
+    {
+        return $this->country_code.$this->phone;
+    }
+
 }
