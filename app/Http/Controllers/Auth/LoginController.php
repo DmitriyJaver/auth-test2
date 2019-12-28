@@ -31,6 +31,7 @@ class LoginController extends Controller
     use AuthenticatesUsers;
     
     const MINUTES_IN_HOUR = 60;
+    const NUMBER_OF_TRY = 5;
 
     /**
      * Where to redirect users after login.
@@ -93,7 +94,7 @@ class LoginController extends Controller
                     session()->put("token_id", $token->id);
                     session()->put("user_id", $user->id);
                     session()->put("remember", $request->get('remember'));
-                    session()->put("number_of_try", $numberOfTry);
+                    session()->put("number_of_try", self::NUMBER_OF_TRY);
 
                     return redirect("code");
                 }
@@ -123,7 +124,7 @@ class LoginController extends Controller
 
     public function showCodeForm()
     {
-        if (! session()->has("token_id")) {
+        if (!session()->has("token_id")) {
             return redirect("login");
         }
         return view("auth.code");
@@ -137,13 +138,13 @@ class LoginController extends Controller
     public function storeCodeForm(Request $request)
     {
         // throttle for too many attempts
-        if (! session()->has("token_id", "user_id")) {
+        if (!session()->has("token_id", "user_id")) {
             return redirect("login");
         }
 
         $token = Token::find(session()->get("token_id"));
-        if (! $token ||
-            ! $token->isValid() ||
+        if (!$token ||
+            !$token->isValid() ||
             $request->code !== $token->code ||
             (int)session()->get("user_id") !== $token->user->id
         ) {
