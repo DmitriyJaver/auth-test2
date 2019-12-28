@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Token extends Model
 {
-    const EXPIRATION_TIME = 15;
+    const EXPIRATION_TIME_MINUTES = 15;
 
     protected $fillable = [
       'code',
@@ -17,7 +17,7 @@ class Token extends Model
 
     public function __construct(array $attributes = [])
     {
-        if (! isset($attributes['code'])){
+        if (!isset($attributes['code'])){
             $attributes['code'] = $this->generateCode();
         }
 
@@ -46,7 +46,7 @@ class Token extends Model
      */
     public function isValid()
     {
-        return ! $this->isUsed() && ! $this->isExpired();
+        return !$this->isUsed() && !$this->isExpired();
     }
 
     /**
@@ -61,16 +61,16 @@ class Token extends Model
 
     public function isExpired()
     {
-        return $this->created_at->diffInMinutes(Carbon::now()) > static::EXPIRATION_TIME;
+        return $this->created_at->diffInMinutes(Carbon::now()) > static::EXPIRATION_TIME_MINUTES;
     }
 
     public function sendCode()
     {
-        if (! $this->user) {
+        if (!$this->user) {
             throw new \Exception("No user attached to this token.");
         }
 
-        if (! $this->code) {
+        if (!$this->code) {
             $this->code = $this->generateCode();
         }
         /**
