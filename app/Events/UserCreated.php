@@ -22,9 +22,6 @@ class UserCreated
      */
     public function __construct($user)
     {
-
         $this->user = $user;
     }
-
-
 }
